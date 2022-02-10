@@ -6,3 +6,11 @@ td {
 	width: 180px;
 	text-align: center;
 }
+
+label {
+	margin-right: 16px;
+}
+
+table {
+	margin-top: 12px;
+}

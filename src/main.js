@@ -64,6 +64,7 @@ $(document).ready(function () {
 			products[i].os +
 			"</td>\
 		<td><a href='#' id='remove' data-id=" +
+			"#" +
 			products[i].id +
 			">X</a></td>\
     </tr>";
@@ -76,6 +77,38 @@ $(document).ready(function () {
 	$("body").on("click", "#remove", function () {
 		var rowId = $(this).data("id");
 
-		$("#" + rowId).hide();
+		$(rowId).hide();
 	});
+
+	// For Unique Operating System
+	var myOS = new Set();
+
+	for (var i = 0; i < products.length; ++i) {
+		myOS.add(products[i].os);
+	}
+
+	var label1 = "<label for='os'>Filter By Operating System: <label>\
+	<select name='os' id='os'>";
+
+	for (var item of myOS) {
+		label1 += "<option>" + item + "</option>";
+	}
+
+	label1 += "</select>";
+
+	// For Unique Brand Name
+	var myBrand = new Set();
+
+	for (var i = 0; i < products.length; ++i) {
+		myBrand.add(products[i].brand);
+	}
+
+	var label2 = "<label for='brand'>Filter By Brand Name: <label>\
+	<select name='brand' id='brand'>";
+
+	for (var item of myBrand) {
+		label2 += "<option>" + item + "</option>";
+	}
+
+	$("table").before(label1, label2);
 });
