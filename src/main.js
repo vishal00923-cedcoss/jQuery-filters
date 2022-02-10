@@ -38,77 +38,104 @@ var products = [
 ];
 
 $(document).ready(function () {
-	var html = "<table><tr>\
-        <th>ID</th>\
-        <th>Name</th>\
-        <th>Brand</th>\
-        <th>Operating System</th>\
-        <th>Remove</th>\
-    </tr> ";
+	var displayAllProducts = products;
 
-	for (var i = 0; i < products.length; i++) {
-		html +=
-			"<tr id=" +
+	var selectElement =
+		"<div class='filter-container'><label for='os'>Select OS: " +
+		"<select name='Operating System' id='os'>" +
+		"<option value='all'>ALL</option>" +
+		"<option value='android'>Android</option>" +
+		"<option value='ios'>IOS</option>" +
+		"<option value='windows'>Windows</option>" +
+		"</select></label>" +
+		"<label for='brand'>Select Brand: <select name='brand' id='brand'>" +
+		"<option value='all'>ALL</option>" +
+		"<option value='Apple'>Apple</option>" +
+		"<option value='Samsung'>Samsung</option>" +
+		"<option value='Motorola'>Motorola</option>" +
+		"<option value='Asus'>ASUS</option>" +
+		"<option value='microsoft'>Microsoft</option>" +
+		"</select></label>" +
+		"</div>";
+
+	var table = "<table id='filter-table'>" + "<thead><tr><th>" + "ID</th><th>Name</th><th>Brand</th>" + "<th>Operating System</th>" + "<th>Remove</th></tr></thead>";
+
+	for (let i = 0; i < products.length; i++) {
+		table +=
+			"<tr><td id='pid'>" +
 			products[i].id +
-			">\
-        <td>" +
-			products[i].id +
-			"</td>\
-        <td>" +
+			"</td><td class='pname'>" +
 			products[i].name +
-			"</td>\
-        <td>" +
+			"</td><td>" +
 			products[i].brand +
-			"</td>\
-        <td>" +
+			"</td><td>" +
 			products[i].os +
-			"</td>\
-		<td><a href='#' id='remove' data-id=" +
-			"#" +
-			products[i].id +
-			">X</a></td>\
-    </tr>";
+			"</td><td id='hide'><a href='#'>X</a></td></tr>";
 	}
 
-	html += "</table>";
+	function display(products) {
+		var table = "<thead><tr><th>" + "ID</th><th>Name</th><th>Brand</th>" + "<th>Operating System</th>" + "<th>Remove</th></tr></thead>";
+		for (let i = 0; i < products.length; i++) {
+			table +=
+				"<tr id='pid'><td>" +
+				products[i].id +
+				"</td><td class='pname'>" +
+				products[i].name +
+				"</td><td>" +
+				products[i].brand +
+				"</td><td>" +
+				products[i].os +
+				"</td><td id='hide'><a href='#'>X</a></td></tr>";
+		}
 
-	$("#product-container").html(html);
+		table += "</table>";
+		$("#filter-table").html(table);
+	}
 
-	$("body").on("click", "#remove", function () {
-		var rowId = $(this).data("id");
+	var searchBar = "<label for='search-input'>" + "<input id='search-input' type='text' placeholder='Search' />" + "</label>";
 
-		$(rowId).hide();
+	$("#product-container").append(selectElement);
+	$("#product-container").append(table + "</table>");
+	$("#product-container").append(searchBar);
+
+	$("#product-container").on("click", "#hide", function () {
+		$(this).parent().hide();
 	});
 
-	// For Unique Operating System
-	var myOS = new Set();
+	$("#product-container").on("click", "select", function () {
+		var os = $("#os").val();
+		var brand = $("#brand").val();
 
-	for (var i = 0; i < products.length; ++i) {
-		myOS.add(products[i].os);
-	}
+		if (os && brand) {
+			displayAllProducts = products;
 
-	var label1 = "<label for='os'>Filter By Operating System: <label>\
-	<select name='os' id='os'>";
+			if (os != "all" && brand == "all") {
+				displayAllProducts = displayAllProducts.filter((item) => item.os.toLowerCase() == os.toLowerCase());
+			} else if (os == "all" && brand != "all") {
+				displayAllProducts = displayAllProducts.filter((item) => item.brand.toLowerCase() == brand.toLowerCase());
+			} else if (os != "all" && brand != "all") {
+				displayAllProducts = displayAllProducts.filter((item) => item.os.toLowerCase() == os.toLowerCase() && item.brand.toLowerCase() == brand.toLowerCase());
+			}
 
-	for (var item of myOS) {
-		label1 += "<option>" + item + "</option>";
-	}
+			display(displayAllProducts);
+		}
+	});
 
-	label1 += "</select>";
+	$("#product-container").on("keyup", "#search-input", function () {
+		var value = $(this).val().toLowerCase();
 
-	// For Unique Brand Name
-	var myBrand = new Set();
-
-	for (var i = 0; i < products.length; ++i) {
-		myBrand.add(products[i].brand);
-	}
-
-	var label2 = "<label for='brand'>Filter By Brand Name: <label>\
-	<select name='brand' id='brand'>";
-
-	for (var item of myBrand) {
-		label2 += "<option>" + item + "</option>";
-	}
-
-	$("table").before(label1, label2);
+		if (!isNaN(value)) {
+			$("#filter-table tbody tr .pid ").filter(function () {
+				$(this)
+					.parent()
+					.toggle($(this).text().toLowerCase().indexOf(value) > -1);
+			});
+		} else {
+			$("#filter-table tbody tr .pname ").filter(function () {
+				$(this)
+					.parent()
+					.toggle($(this).text().toLowerCase().indexOf(value) > -1);
+			});
+		}
+	});
 });
